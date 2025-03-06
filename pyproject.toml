@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hcli_vibe"
+dynamic = ["version", "dependencies"]
+description="HCLI vibe is a python package wrapper that contains an HCLI sample application (vibe); vibe is an AI agent to help with vibe coding with git in the terminal."
+readme = "README.rst"
+authors = [{name = "Jeff Michaud", email = "cometaj2@proton.me"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+keywords = ["vibe", "ai", "llm", "cli", "client", "server", "connector", "hypermedia", "rest", "generic", "development"]
+
+[project.urls]
+Homepage = "https://github.com/cometaj2/hcli_vibe"
+
+[project.scripts]
+hcli_vibe = "hcli_vibe.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "hcli_vibe.package.__version__"}
+dependencies = {file = "requirements.txt"}
+
+[tool.setuptools]
+packages = ["hcli_vibe",
+            "hcli_vibe.cli",
+            "hcli_vibe.cli.utils",
+            "hcli_vibe.data"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"hcli_vibe" = ["**/*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.pyc", "*.pyo", "*.pyd", "__pycache__"]

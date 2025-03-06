@@ -1,0 +1,86 @@
+{
+    "hcliTemplateVersion": "1.0",
+    "executable": [
+        {
+            "command": "vibe git sig",
+            "http": "get"
+        }
+    ],
+    "cli": [
+        {
+            "id": "vibe",
+            "name": "vibe",
+            "section": [
+                {
+                    "name": "name",
+                    "description": "vibe - an HCLI AI agent for vibe coding with git in the terminal."
+                },
+                {
+                    "name": "synopsis",
+                    "description": "vibe <command>"
+                },
+                {
+                    "name": "description",
+                    "description": ""
+                },
+                {
+                    "name": "examples",
+                    "description": ""
+                }
+            ],
+            "command": [
+                {
+                    "href": "vibe git",
+                    "name": "git",
+                    "description": "The \"git\" command allows for interaction with git code repositories."
+                }
+            ]
+        },
+        {
+            "id": "vibegit",
+            "name": "git",
+            "section": [
+                {
+                    "name": "name",
+                    "description": "git - allows for interaction with git repositories."
+                },
+                {
+                    "name": "synopsis",
+                    "description": "vibe git <command>"
+                },
+                {
+                    "name": "description",
+                    "description": "The \"git\" command allows for interaction with git code repositories."
+                }
+            ],
+            "command": [
+                {
+                    "href": "vibegitsig",
+                    "name": "sig",
+                    "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features."
+                }
+            ]
+        },
+        {
+            "id": "vibegitsig",
+            "name": "sig",
+            "section": [
+                {
+                    "name": "name",
+                    "description": "sig - distils out a useful git repository structure for large language models."
+                },
+                {
+                    "name": "synopsis",
+                    "description": "vibe git sig [parameter]"
+                },
+                {
+                    "name": "description",
+                    "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features.\n\nIf no parameter is provided, the command assumes the path of the current directory."
+                }
+            ],
+            "parameter": {
+                "href": "vibegitsigparameter"
+            }
+        }
+    ]
+}
