@@ -7,6 +7,7 @@ import jobqueue as j
 import threading
 import runner as r
 import repo
+import config
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor
@@ -29,6 +30,7 @@ class Service:
         }
 
         scheduler = BackgroundScheduler(executors=executors)
+        self.config = config.Config()
         self.runner = r.Runner()
         self.signature = repo.Signature()
         self.job_queue = j.JobQueue()

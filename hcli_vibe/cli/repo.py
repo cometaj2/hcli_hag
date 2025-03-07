@@ -34,7 +34,7 @@ class Signature:
         return structure
 
     def map_git_repo(self, repo_path):
-        repo = Repo(repo_path)
+        repo = Repo(repo_path, search_parent_directories=True)
         file_map = {}
         for item in repo.tree().traverse():
             if item.type == 'blob' and item.path.endswith('.py'):

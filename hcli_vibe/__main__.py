@@ -21,6 +21,10 @@ def main():
             print(config.plugin_path)
             sys.exit(0)
 
+        elif sys.argv[1] == "run":
+            print('gunicorn --preload --workers=1 --threads=100 -b 127.0.0.1:15000 "hcli_core:connector(\\"`hcli_vibe path`\\")"')
+            sys.exit(0)
+
         else:
             hcli_vibe_help()
 
