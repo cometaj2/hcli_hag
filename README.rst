@@ -1,7 +1,7 @@
 |pypi| |build status| |pyver|
 
 HCLI vibe
-========
+=========
 
 HCLI vibe is a python package wrapper that contains an HCLI sample application (vibe); vibe is an AI agent to help with vibe coding with git in the terminal.
 

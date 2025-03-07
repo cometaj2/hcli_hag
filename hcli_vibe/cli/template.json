@@ -2,7 +2,7 @@
     "hcliTemplateVersion": "1.0",
     "executable": [
         {
-            "command": "vibe git sig",
+            "command": "vibe git sig {p}",
             "http": "get"
         }
     ],
@@ -30,7 +30,7 @@
             ],
             "command": [
                 {
-                    "href": "vibe git",
+                    "href": "vibegit",
                     "name": "git",
                     "description": "The \"git\" command allows for interaction with git code repositories."
                 }
@@ -75,7 +75,11 @@
                 },
                 {
                     "name": "description",
-                    "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features.\n\nIf no parameter is provided, the command assumes the path of the current directory."
+                    "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features."
+                },
+                {
+                    "name": "examples",
+                    "description": "vibe git sig `pwd`"
                 }
             ],
             "parameter": {

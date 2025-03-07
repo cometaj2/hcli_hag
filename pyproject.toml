@@ -35,7 +35,6 @@ dependencies = {file = "requirements.txt"}
 [tool.setuptools]
 packages = ["hcli_vibe",
             "hcli_vibe.cli",
-            "hcli_vibe.cli.utils",
             "hcli_vibe.data"]
 include-package-data = true
 
