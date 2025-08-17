@@ -2,7 +2,6 @@ import io
 import os
 import json
 from hcli_hag import config
-# import service
 
 from typing import Optional, Dict, Callable, List
 
@@ -24,17 +23,17 @@ class CLI:
     def _handle_ls(self) -> Optional[io.BytesIO]:
         def get_repos():
             try:
-                repos = {}
+                repos = []
                 for d in os.listdir(config.repos):
                     if d.endswith('.git'):
-                        repos[f"/{d}"] = ''
+                        repos.append(f"{d}")
                 return repos
             except Exception as e:
                 print(f"Error scanning repos: {e}")
-                return {}
+                return []
 
 
         repos = get_repos()
-        json_string = json.dumps(repos)
+        json_string = json.dumps(repos, indent=4)
 
         return io.BytesIO(json_string.encode('utf-8'))

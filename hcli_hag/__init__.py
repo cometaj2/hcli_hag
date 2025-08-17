@@ -3,6 +3,7 @@ import os
 import inspect
 
 from . import config
+from . import logger
 
 sys.path.insert(0, config.root)
 
@@ -17,6 +18,9 @@ from hcli_problem_details import ProblemDetail
 from dulwich.web import HTTPGitApplication
 from dulwich.server import DictBackend
 from dulwich.repo import Repo
+
+log = logger.Logger("hcli_hag")
+log.setLevel(logger.INFO)
 
 # Class decorator to mark resources that need authentication or authorization.
 # This allows us to navigate the HCLI API surface without authentication except for final execution.
@@ -37,19 +41,19 @@ def get_repos():
                 except NotGitRepository:
                     pass
                 except Exception as e:
-                    print(f"Error loading repo {d}: {e}")
+                    log.error(f"Error loading repo {d}: {e}")
         return repos
     except Exception as e:
-        print(f"Error scanning repos: {e}")
+        log.error(f"Error scanning repos: {e}")
         return {}
 
 class CustomHTTPGitApplication(HTTPGitApplication):
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO', '/')
-        print(f"Processing PATH_INFO: {path}")
+        log.debug(f"Processing PATH_INFO: {path}")
         if path.startswith('/repos'):
             environ['PATH_INFO'] = path[len('/repos'):]
-            print(f"Modified PATH_INFO: {environ['PATH_INFO']}")
+            log.debug(f"Modified PATH_INFO: {environ['PATH_INFO']}")
         return super().__call__(environ, start_response)
 
 @requires_auth
@@ -67,7 +71,7 @@ class GitResource:
         environ = req.env.copy()
         environ['PATH_INFO'] = f"/repos/{path}"
         environ['SCRIPT_NAME'] = ''
-        print(f"GitResource PATH_INFO: {environ['PATH_INFO']}")
+        log.debug(f"GitResource PATH_INFO: {environ['PATH_INFO']}")
 
         response_data = []
 
@@ -82,7 +86,7 @@ class GitResource:
         result = self.git_app(environ, start_response)
         response_data.extend(result)
         resp.data = b''.join(response_data)
-        print(f"Response data: {resp.data!r}")
+        log.debug(f"Response data: {resp.data!r}")
 
 class CustomApp:
     def __init__(self, name, plugin_path, config_path):
@@ -109,8 +113,8 @@ class CustomApp:
 def connector(plugin_path=None, config_path=None):
     def port_router(environ, start_response):
         path = environ.get('PATH_INFO', '/')
-        print(f"Incoming path: {path}")
-        print(f"Available repos: {get_repos()}")
+        log.debug(f"Incoming path: {path}")
+        log.debug(f"Available repos: {get_repos()}")
 
         if path.startswith('/repos'):
             custom = CustomApp(name="hag", plugin_path=plugin_path, config_path=config_path)
