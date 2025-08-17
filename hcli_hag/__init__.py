@@ -18,6 +18,13 @@ from dulwich.web import HTTPGitApplication
 from dulwich.server import DictBackend
 from dulwich.repo import Repo
 
+# Class decorator to mark resources that need authentication or authorization.
+# This allows us to navigate the HCLI API surface without authentication except for final execution.
+def requires_auth(cls):
+    cls.requires_authentication = True
+    cls.requires_authorization = True
+    return cls
+
 def get_repos():
     try:
         repos = {}
@@ -45,6 +52,7 @@ class CustomHTTPGitApplication(HTTPGitApplication):
             print(f"Modified PATH_INFO: {environ['PATH_INFO']}")
         return super().__call__(environ, start_response)
 
+@requires_auth
 class GitResource:
     def __init__(self, git_app):
         self.git_app = git_app
@@ -80,6 +88,11 @@ class CustomApp:
     def __init__(self, name, plugin_path, config_path):
         self.name = name
         self.git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
+
+        # We set the configuration/credentials path for use the authentication middleware
+        self.cfg = c.Config(name)
+        self.cfg.set_config_path(config_path)
+        self.cfg.parse_configuration()
 
     def server(self):
         server = falcon.App(middleware=[authenticator.SelectiveAuthenticationMiddleware(self.name)])

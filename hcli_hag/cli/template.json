@@ -2,11 +2,7 @@
     "hcliTemplateVersion": "1.0",
     "executable": [
         {
-            "command": "hag sig {p}",
-            "http": "get"
-        },
-        {
-            "command": "hag diff",
+            "command": "hag ls",
             "http": "get"
         }
     ],
@@ -17,7 +13,7 @@
             "section": [
                 {
                     "name": "name",
-                    "description": "hag - an HCLI AI agent for hag coding with git in the terminal."
+                    "description": "hag - git's hosting companion."
                 },
                 {
                     "name": "synopsis",
@@ -25,100 +21,38 @@
                 },
                 {
                     "name": "description",
-                    "description": "hag is an HCLI (hypertext command line interface) that enhancees AI agents with the ability to make use of additional tools."
+                    "description": "hag is an HCLI (hypertext command line interface) that allows you to manage remote hosted git repositories."
                 },
                 {
                     "name": "examples",
-                    "description": "hag git sig `pwd`"
+                    "description": "hag ls"
                 }
             ],
             "command": [
                 {
-                    "href": "haggit",
-                    "name": "git",
-                    "description": "The \"git\" command allows for interaction with git code repositories."
-                },
-                {
-                    "href": "hagsearch",
-                    "name": "search",
-                    "description": "The \"search\" command allows for web page digest."
+                    "href": "hagls",
+                    "name": "ls",
+                    "description": "The \"ls\" command allows you to list available git repositories."
                 }
             ]
         },
         {
-            "id": "haggit",
-            "name": "git",
+            "id": "hagls",
+            "name": "ls",
             "section": [
                 {
                     "name": "name",
-                    "description": "git - allows for interaction with git repositories."
+                    "description": "ls - list available git repositories."
                 },
                 {
                     "name": "synopsis",
-                    "description": "hag git <command>"
+                    "description": "hag ls"
                 },
                 {
                     "name": "description",
-                    "description": "The \"git\" command allows for interaction with git code repositories."
-                }
-            ],
-            "command": [
-                {
-                    "href": "haggitsig",
-                    "name": "sig",
-                    "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features."
+                    "description": "The \"ls\" command allows you to list available git repositories."
                 }
             ]
-        },
-        {
-            "id": "haggitsig",
-            "name": "sig",
-            "section": [
-                {
-                    "name": "name",
-                    "description": "sig - distils out a useful git repository structure for large language models."
-                },
-                {
-                    "name": "synopsis",
-                    "description": "hag git sig [parameter]"
-                },
-                {
-                    "name": "description",
-                    "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features."
-                },
-                {
-                    "name": "examples",
-                    "description": "hag git sig `pwd`"
-                }
-            ],
-            "parameter": {
-                "href": "haggitsigparameter"
-            }
-        },
-        {
-            "id": "hagsearch",
-            "name": "search",
-            "section": [
-                {
-                    "name": "name",
-                    "description": "search - returns a simple website digest."
-                },
-                {
-                    "name": "synopsis",
-                    "description": "hag search [parameter]"
-                },
-                {
-                    "name": "description",
-                    "description": "The \"search\" command takes a http or https parameter and returns website digest."
-                },
-                {
-                    "name": "examples",
-                    "description": "hag search 'https://hcli.io'"
-                }
-            ],
-            "parameter": {
-                "href": "hagsearchparameter"
-            }
         }
     ]
 }

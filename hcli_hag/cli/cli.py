@@ -1,36 +1,40 @@
 import io
+import os
+import json
+from hcli_hag import config
 # import service
 
 from typing import Optional, Dict, Callable, List
 
 class CLI:
-   def __init__(self, commands: List[str], inputstream: Optional[io.BytesIO] = None):
-       self.commands = commands
-       self.inputstream = inputstream
-#        self.service = service.Service()
-       self.handlers: Dict[str, Callable] = {
-           'git':  self._handle_git,
-           'search':  self._handle_search,
-       }
 
-   def execute(self) -> Optional[io.BytesIO]:
-       if len(self.commands) > 1 and self.commands[1] in self.handlers:
-           return self.handlers[self.commands[1]]()
+    def __init__(self, commands: List[str], inputstream: Optional[io.BytesIO] = None):
+        self.commands = commands
+        self.inputstream = inputstream
+        self.handlers: Dict[str, Callable] = {
+            'ls':  self._handle_ls,
+        }
 
-       return None
+    def execute(self) -> Optional[io.BytesIO]:
+        if len(self.commands) > 1 and self.commands[1] in self.handlers:
+            return self.handlers[self.commands[1]]()
 
-   def _handle_git(self) -> Optional[io.BytesIO]:
-#        if len(self.commands) == 4 and self.commands[2] == 'sig':
-#            repo_sig = self.service.sig(self.commands[3])
-#            if repo_sig is not None:
-#                return io.BytesIO(repo_sig.encode('utf-8'))
+        return None
 
-       return None
+    def _handle_ls(self) -> Optional[io.BytesIO]:
+        def get_repos():
+            try:
+                repos = {}
+                for d in os.listdir(config.repos):
+                    if d.endswith('.git'):
+                        repos[f"/{d}"] = ''
+                return repos
+            except Exception as e:
+                print(f"Error scanning repos: {e}")
+                return {}
 
-   def _handle_search(self) -> Optional[io.BytesIO]:
-#        if len(self.commands) == 3:
-#            searched = self.service.search(self.commands[2])
-#            if searched is not None:
-#                return io.BytesIO(searched.encode('utf-8'))
 
-       return None
+        repos = get_repos()
+        json_string = json.dumps(repos)
+
+        return io.BytesIO(json_string.encode('utf-8'))
