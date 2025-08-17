@@ -14,23 +14,18 @@ from hcli_core.auth.cli import authenticator
 from hcli_core.handler import HCLIErrorHandler
 from hcli_problem_details import ProblemDetail
 
-from hcli_hag.cli import proxy
-
 from dulwich.web import HTTPGitApplication
 from dulwich.server import DictBackend
 from dulwich.repo import Repo
 
-REPO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'repos'))
-
 def get_repos():
     try:
         repos = {}
-        for d in os.listdir(REPO_DIR):
+        for d in os.listdir(config.repos):
             if d.endswith('.git'):
-                repo_path = os.path.join(REPO_DIR, d)
+                repo_path = os.path.join(config.repos, d)
                 try:
                     repo = Repo(repo_path)
-                    # Use the repo name without '/repos' prefix
                     repos[f"/{d}"] = repo
                 except NotGitRepository:
                     pass
@@ -43,14 +38,43 @@ def get_repos():
 
 class CustomHTTPGitApplication(HTTPGitApplication):
     def __call__(self, environ, start_response):
-        # Log the incoming PATH_INFO for debugging
         path = environ.get('PATH_INFO', '/')
         print(f"Processing PATH_INFO: {path}")
-        # Strip '/repos' prefix for Dulwich backend
         if path.startswith('/repos'):
             environ['PATH_INFO'] = path[len('/repos'):]
             print(f"Modified PATH_INFO: {environ['PATH_INFO']}")
         return super().__call__(environ, start_response)
+
+class GitResource:
+    def __init__(self, git_app):
+        self.git_app = git_app
+
+    def on_get(self, req, resp, path):
+        self._handle_request(req, resp, path)
+
+    def on_post(self, req, resp, path):
+        self._handle_request(req, resp, path)
+
+    def _handle_request(self, req, resp, path):
+        environ = req.env.copy()
+        environ['PATH_INFO'] = f"/repos/{path}"
+        environ['SCRIPT_NAME'] = ''
+        print(f"GitResource PATH_INFO: {environ['PATH_INFO']}")
+
+        response_data = []
+
+        def start_response(status, response_headers, exc_info=None):
+            resp.status = status
+            for name, value in response_headers:
+                resp.set_header(name, value)
+            def write(data):
+                response_data.append(data)
+            return write
+
+        result = self.git_app(environ, start_response)
+        response_data.extend(result)
+        resp.data = b''.join(response_data)
+        print(f"Response data: {resp.data!r}")
 
 class CustomApp:
     def __init__(self, name, plugin_path, config_path):
@@ -58,7 +82,9 @@ class CustomApp:
         self.git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
 
     def server(self):
-        return self.git_app
+        server = falcon.App()
+        server.add_route('/repos/{path:path}', GitResource(self.git_app))
+        return server
 
 def connector(plugin_path=None, config_path=None):
     def port_router(environ, start_response):
@@ -71,7 +97,6 @@ def connector(plugin_path=None, config_path=None):
             server = custom.server()
             return server(environ, start_response)
         else:
-            # Replace with your hcli_core connector logic
             return hcli_core.connector(plugin_path=plugin_path, config_path=config_path)
 
     return port_router
