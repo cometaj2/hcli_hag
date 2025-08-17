@@ -44,7 +44,7 @@ class Logger:
             return cls.instance
 
     def init(self, name=None, *args, **kwargs):
-        self.name = "vibe"
+        self.name = "hag"
         self.instance = logging.getLogger(self.name)
 
         date_format = "%Y-%m-%d %H:%M:%S %z"

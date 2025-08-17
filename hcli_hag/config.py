@@ -4,7 +4,7 @@ import importlib
 import inspect
 
 root = os.path.dirname(inspect.getfile(lambda: None))
-hcli_vibe_manpage_path = root + "/data/hcli_vibe.1"
+hcli_hag_manpage_path = root + "/data/hcli_hag.1"
 plugin_path = root + "/cli"
 cli = None
 

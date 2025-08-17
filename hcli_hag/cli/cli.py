@@ -1,0 +1,36 @@
+import io
+# import service
+
+from typing import Optional, Dict, Callable, List
+
+class CLI:
+   def __init__(self, commands: List[str], inputstream: Optional[io.BytesIO] = None):
+       self.commands = commands
+       self.inputstream = inputstream
+#        self.service = service.Service()
+       self.handlers: Dict[str, Callable] = {
+           'git':  self._handle_git,
+           'search':  self._handle_search,
+       }
+
+   def execute(self) -> Optional[io.BytesIO]:
+       if len(self.commands) > 1 and self.commands[1] in self.handlers:
+           return self.handlers[self.commands[1]]()
+
+       return None
+
+   def _handle_git(self) -> Optional[io.BytesIO]:
+#        if len(self.commands) == 4 and self.commands[2] == 'sig':
+#            repo_sig = self.service.sig(self.commands[3])
+#            if repo_sig is not None:
+#                return io.BytesIO(repo_sig.encode('utf-8'))
+
+       return None
+
+   def _handle_search(self) -> Optional[io.BytesIO]:
+#        if len(self.commands) == 3:
+#            searched = self.service.search(self.commands[2])
+#            if searched is not None:
+#                return io.BytesIO(searched.encode('utf-8'))
+
+       return None

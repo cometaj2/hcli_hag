@@ -1,3 +1,0 @@
-__version__ = "0.1.0"
-dependencies = ["apscheduler==3.11.0",
-                "huckle>=5.5.6,<6.0.0"]

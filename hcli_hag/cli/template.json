@@ -2,42 +2,51 @@
     "hcliTemplateVersion": "1.0",
     "executable": [
         {
-            "command": "vibe git sig {p}",
+            "command": "hag sig {p}",
+            "http": "get"
+        },
+        {
+            "command": "hag diff",
             "http": "get"
         }
     ],
     "cli": [
         {
-            "id": "vibe",
-            "name": "vibe",
+            "id": "hag",
+            "name": "hag",
             "section": [
                 {
                     "name": "name",
-                    "description": "vibe - an HCLI AI agent for vibe coding with git in the terminal."
+                    "description": "hag - an HCLI AI agent for hag coding with git in the terminal."
                 },
                 {
                     "name": "synopsis",
-                    "description": "vibe <command>"
+                    "description": "hag <command>"
                 },
                 {
                     "name": "description",
-                    "description": ""
+                    "description": "hag is an HCLI (hypertext command line interface) that enhancees AI agents with the ability to make use of additional tools."
                 },
                 {
                     "name": "examples",
-                    "description": ""
+                    "description": "hag git sig `pwd`"
                 }
             ],
             "command": [
                 {
-                    "href": "vibegit",
+                    "href": "haggit",
                     "name": "git",
                     "description": "The \"git\" command allows for interaction with git code repositories."
+                },
+                {
+                    "href": "hagsearch",
+                    "name": "search",
+                    "description": "The \"search\" command allows for web page digest."
                 }
             ]
         },
         {
-            "id": "vibegit",
+            "id": "haggit",
             "name": "git",
             "section": [
                 {
@@ -46,7 +55,7 @@
                 },
                 {
                     "name": "synopsis",
-                    "description": "vibe git <command>"
+                    "description": "hag git <command>"
                 },
                 {
                     "name": "description",
@@ -55,14 +64,14 @@
             ],
             "command": [
                 {
-                    "href": "vibegitsig",
+                    "href": "haggitsig",
                     "name": "sig",
                     "description": "The \"sig\" command takes a file path to a git repository and distils out a useful and compact representation of its salient features."
                 }
             ]
         },
         {
-            "id": "vibegitsig",
+            "id": "haggitsig",
             "name": "sig",
             "section": [
                 {
@@ -71,7 +80,7 @@
                 },
                 {
                     "name": "synopsis",
-                    "description": "vibe git sig [parameter]"
+                    "description": "hag git sig [parameter]"
                 },
                 {
                     "name": "description",
@@ -79,11 +88,36 @@
                 },
                 {
                     "name": "examples",
-                    "description": "vibe git sig `pwd`"
+                    "description": "hag git sig `pwd`"
                 }
             ],
             "parameter": {
-                "href": "vibegitsigparameter"
+                "href": "haggitsigparameter"
+            }
+        },
+        {
+            "id": "hagsearch",
+            "name": "search",
+            "section": [
+                {
+                    "name": "name",
+                    "description": "search - returns a simple website digest."
+                },
+                {
+                    "name": "synopsis",
+                    "description": "hag search [parameter]"
+                },
+                {
+                    "name": "description",
+                    "description": "The \"search\" command takes a http or https parameter and returns website digest."
+                },
+                {
+                    "name": "examples",
+                    "description": "hag search 'https://hcli.io'"
+                }
+            ],
+            "parameter": {
+                "href": "hagsearchparameter"
             }
         }
     ]

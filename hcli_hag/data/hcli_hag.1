@@ -1,0 +1,27 @@
+.TH HCLI_HAG 1 "MARCH 2025" Linux "User Manuals"
+.SH NAME
+hcli_hag \- A python package wrapper that contains an HCLI sample application (hag); hag is git's companion; a WSGI host service and hcli to work with remote git repositories.
+.SH SYNOPSIS
+.B hcli_hag
+[ option | <command> ]
+.SH DESCRIPTION
+.B hcli_hag
+HCLI hag is a python package wrapper that contains an HCLI sample application (hag); hag is git's companion; a WSGI host service and hcli to work with remote git repositories.
+.SH COMMANDS
+.IP "path"
+Provides the installation path of hcli_hag, which can be used to help locate the path of the HCLI app to use in an HCLI Connector.
+.IP help
+This help file.
+.SH OPTIONS
+.IP --version
+.B hcli_hag
+version and the version of it's dependencies.
+.SH EXAMPLE
+.sp
+hcli_hag path
+.sp
+hcli_hag --version
+.sp
+hcli_hag run | bash
+.sp
+gunicorn --workers=1 --threads=1 "hcli_hag:connector(\\"`hcli_hag path`\\")"
