@@ -82,8 +82,15 @@ class CustomApp:
         self.git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
 
     def server(self):
-        server = falcon.App()
+        server = falcon.App(middleware=[authenticator.SelectiveAuthenticationMiddleware(self.name)])
+
+        # Register the HCLI error handler
+        error_handler = HCLIErrorHandler()
+        server.add_error_handler(falcon.HTTPError, error_handler)
+        server.add_error_handler(ProblemDetail, error_handler)
+
         server.add_route('/repos/{path:path}', GitResource(self.git_app))
+
         return server
 
 def connector(plugin_path=None, config_path=None):
@@ -93,10 +100,11 @@ def connector(plugin_path=None, config_path=None):
         print(f"Available repos: {get_repos()}")
 
         if path.startswith('/repos'):
-            custom = CustomApp(name="hagproxy", plugin_path=plugin_path, config_path=config_path)
+            custom = CustomApp(name="hag", plugin_path=plugin_path, config_path=config_path)
             server = custom.server()
             return server(environ, start_response)
         else:
-            return hcli_core.connector(plugin_path=plugin_path, config_path=config_path)
+            server = hcli_core.connector(plugin_path=plugin_path, config_path=config_path)
+            return server(environ, start_response)
 
     return port_router
