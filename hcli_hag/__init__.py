@@ -19,8 +19,6 @@ from dulwich.web import HTTPGitApplication
 from dulwich.server import DictBackend
 from dulwich.repo import Repo
 
-from threading import RLock
-
 log = logger.Logger("hcli_hag")
 log.setLevel(logger.INFO)
 
@@ -47,9 +45,11 @@ def get_repos():
         return {}
 
 class CustomHTTPGitApplication(HTTPGitApplication):
+
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO', '/')
         if path.startswith('/repos'):
+            # Strip /repos/ prefix and adjust PATH_INFO to match repo path
             environ['PATH_INFO'] = path[len('/repos'):]
         return super().__call__(environ, start_response)
 
@@ -70,8 +70,7 @@ def handle_git_request(req, resp, path, git_app):
     response_data.extend(result)
     resp.data = b''.join(response_data)
 
-# All GET requests go through.
-class GitGetResource:
+class GitInfoRefsResource:
 
     def __init__(self, git_app):
         self.git_app = git_app
@@ -79,8 +78,7 @@ class GitGetResource:
     def on_get(self, req, resp, repo):
         handle_git_request(req, resp, f"{repo}/info/refs", self.git_app)
 
-# POST git-upload-pack are read operations from the client and can go through unauthenticated
-class GitUploadResource:
+class GitUploadPackResource:
 
     def __init__(self, git_app):
         self.git_app = git_app
@@ -88,9 +86,8 @@ class GitUploadResource:
     def on_post(self, req, resp, repo):
         handle_git_request(req, resp, f"{repo}/git-upload-pack", self.git_app)
 
-# POST git-receive-pack are client repo change requests and requires authentication
 @requires_auth
-class GitReceiveResource:
+class GitReceivePackResource:
 
     def __init__(self, git_app):
         self.git_app = git_app
@@ -99,43 +96,28 @@ class GitReceiveResource:
         handle_git_request(req, resp, f"{repo}/git-receive-pack", self.git_app)
 
 class CustomApp:
-    _instance = None
-    _init_lock = RLock()
-
-    def __new__(cls, *args, **kwargs):
-        with cls._init_lock:
-            if cls._instance is None:
-                cls._instance = super().__new__(cls)
-                cls._instance._initialized = False
-            return cls._instance
 
     def __init__(self, name, plugin_path=None, config_path=None):
-        with self._init_lock:
-            if not self._initialized:
-                self._name = name
-                self._git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
-                self._cfg = c.Config(name)
-                self._cfg.set_config_path(config_path)
-                self._cfg.parse_configuration()
-                self._initialized = True
+        self.name = name
+        self.git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
+        self.cfg = c.Config(name)
+        self.cfg.set_config_path(config_path)
+        self.cfg.parse_configuration()
 
     def server(self):
-        server = falcon.App(middleware=[authenticator.SelectiveAuthenticationMiddleware(self._name)])
+        server = falcon.App(middleware=[authenticator.SelectiveAuthenticationMiddleware(self.name)])
         error_handler = HCLIErrorHandler()
         server.add_error_handler(falcon.HTTPError, error_handler)
         server.add_error_handler(ProblemDetail, error_handler)
-
-        server.add_route('/{user}/{repo}/info/refs', GitGetResource(self._git_app), methods=['GET']) 
-        server.add_route('/{user}/{repo}/git-upload-pack', GitUploadResource(self._git_app), methods=['POST'])
-        server.add_route('/{user}/{repo}/git-receive-pack', GitReceiveResource(self._git_app), methods=['POST'])
-
+        server.add_route('/repos/{repo}/info/refs', GitInfoRefsResource(self.git_app), methods=['GET'])
+        server.add_route('/repos/{repo}/git-upload-pack', GitUploadPackResource(self.git_app), methods=['POST'])
+        server.add_route('/repos/{repo}/git-receive-pack', GitReceivePackResource(self.git_app), methods=['POST'])
         return server
 
 def connector(plugin_path=None, config_path=None):
     def port_router(environ, start_response):
         path = environ.get('PATH_INFO', '/')
-        parts = path.lstrip('/').split('/')
-        if len(parts) == 3 and parts[2] in ('info/refs', 'git-upload-pack', 'git-receive-pack'):
+        if path.startswith('/repos'):
             custom = CustomApp(name="hag", plugin_path=plugin_path, config_path=config_path)
             server = custom.server()
             return server(environ, start_response)
