@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.3.1]
+- Add single falcon CustomApp to avoid reloading repos on every call
+- Fix manage.py tag and publish
+
 ## [0.3.0]
 - Add anonymous unauthenticated read operations on git repos
 - Add authentication support for write operations on git repo

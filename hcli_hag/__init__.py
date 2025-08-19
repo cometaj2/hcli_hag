@@ -19,6 +19,8 @@ from dulwich.web import HTTPGitApplication
 from dulwich.server import DictBackend
 from dulwich.repo import Repo
 
+from threading import RLock
+
 log = logger.Logger("hcli_hag")
 log.setLevel(logger.INFO)
 
@@ -96,23 +98,37 @@ class GitReceivePackResource:
         handle_git_request(req, resp, f"{repo}/git-receive-pack", self.git_app)
 
 class CustomApp:
+    _instance = None
+    _init_lock = RLock()
+
+    def __new__(cls, *args, **kwargs):
+        with cls._init_lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+                cls._instance._initialized = False
+            return cls._instance
 
     def __init__(self, name, plugin_path=None, config_path=None):
-        self.name = name
-        self.git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
-        self.cfg = c.Config(name)
-        self.cfg.set_config_path(config_path)
-        self.cfg.parse_configuration()
+        with self._init_lock:
+            if not self._initialized:
+                self._server_lock = RLock()
+                self._name = name
+                self._git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
+                self._cfg = c.Config(name)
+                self._cfg.set_config_path(config_path)
+                self._cfg.parse_configuration()
+                self._initialized = True
 
     def server(self):
-        server = falcon.App(middleware=[authenticator.SelectiveAuthenticationMiddleware(self.name)])
-        error_handler = HCLIErrorHandler()
-        server.add_error_handler(falcon.HTTPError, error_handler)
-        server.add_error_handler(ProblemDetail, error_handler)
-        server.add_route('/repos/{repo}/info/refs', GitInfoRefsResource(self.git_app), methods=['GET'])
-        server.add_route('/repos/{repo}/git-upload-pack', GitUploadPackResource(self.git_app), methods=['POST'])
-        server.add_route('/repos/{repo}/git-receive-pack', GitReceivePackResource(self.git_app), methods=['POST'])
-        return server
+        with self._server_lock:
+            server = falcon.App(middleware=[authenticator.SelectiveAuthenticationMiddleware(self._name)])
+            error_handler = HCLIErrorHandler()
+            server.add_error_handler(falcon.HTTPError, error_handler)
+            server.add_error_handler(ProblemDetail, error_handler)
+            server.add_route('/repos/{repo}/info/refs', GitInfoRefsResource(self._git_app), methods=['GET'])
+            server.add_route('/repos/{repo}/git-upload-pack', GitUploadPackResource(self._git_app), methods=['POST'])
+            server.add_route('/repos/{repo}/git-receive-pack', GitReceivePackResource(self._git_app), methods=['POST'])
+            return server
 
 def connector(plugin_path=None, config_path=None):
     def port_router(environ, start_response):

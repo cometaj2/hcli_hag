@@ -32,7 +32,7 @@ if sys.argv[-1] == 'dry-run':
     sys.exit()
 
 if sys.argv[-1] == 'publish':
-    branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
+    branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip().decode("utf-8")
     if branch.decode('ASCII') != "master":
         sys.exit("publishing from a branch other than master is disallowed.")
     os.system("pip uninstall -y hcli_hag")
@@ -50,7 +50,7 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 if sys.argv[-1] == 'tag':
-    branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
+    branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip().decode("utf-8")
     if branch != "master":
         sys.exit("tagging from a branch other than master is disallowed.")
     os.system("git tag -a %s -m 'version %s'" % ("hcli_hag-" + version, "hcli_hag-" + version))
