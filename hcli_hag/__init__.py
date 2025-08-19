@@ -33,33 +33,25 @@ def requires_auth(cls):
 def get_repos():
     try:
         repos = {}
-        for d in os.listdir(config.repos):
-            if d.endswith('.git'):
-                repo_path = os.path.join(config.repos, d)
-                try:
-                    repo = Repo(repo_path)
-                    repos[f"/{d}"] = repo
-                except Exception as e:
-                    log.error(f"Error loading repo {d}: {e}")
+        for user in os.listdir(config.repos):
+            user_path = os.path.join(config.repos, user)
+            if os.path.isdir(user_path):
+                for repo in os.listdir(user_path):
+                    if repo.endswith('.git'):
+                        repo_path = os.path.join(user_path, repo)
+                        try:
+                            repo_obj = Repo(repo_path)
+                            repos[f"/{user}/{repo}"] = repo_obj
+                        except Exception as e:
+                            log.error(f"Error loading repo {user}/{repo}: {e}")
         return repos
     except Exception as e:
         log.error(f"Error scanning repos: {e}")
         return {}
 
-class CustomHTTPGitApplication(HTTPGitApplication):
-
-    def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO', '/')
-        if path.startswith('/repos'):
-            # Strip /repos/ prefix and adjust PATH_INFO to match repo path
-            environ['PATH_INFO'] = path[len('/repos'):]
-        return super().__call__(environ, start_response)
-
 # Shared utility for handling Git requests
 def handle_git_request(req, resp, path, git_app):
     environ = req.env.copy()
-    environ['PATH_INFO'] = f"/repos/{path}"
-    environ['SCRIPT_NAME'] = ''
     response_data = []
     def start_response(status, response_headers, exc_info=None):
         resp.status = status
@@ -77,16 +69,16 @@ class GitInfoRefsResource:
     def __init__(self, git_app):
         self.git_app = git_app
 
-    def on_get(self, req, resp, repo):
-        handle_git_request(req, resp, f"{repo}/info/refs", self.git_app)
+    def on_get(self, req, resp, user, repo):
+        handle_git_request(req, resp, f"{user}/{repo}/info/refs", self.git_app)
 
 class GitUploadPackResource:
 
     def __init__(self, git_app):
         self.git_app = git_app
 
-    def on_post(self, req, resp, repo):
-        handle_git_request(req, resp, f"{repo}/git-upload-pack", self.git_app)
+    def on_post(self, req, resp, user, repo):
+        handle_git_request(req, resp, f"{user}/{repo}/git-upload-pack", self.git_app)
 
 @requires_auth
 class GitReceivePackResource:
@@ -94,8 +86,8 @@ class GitReceivePackResource:
     def __init__(self, git_app):
         self.git_app = git_app
 
-    def on_post(self, req, resp, repo):
-        handle_git_request(req, resp, f"{repo}/git-receive-pack", self.git_app)
+    def on_post(self, req, resp, user, repo):
+        handle_git_request(req, resp, f"{user}/{repo}/git-receive-pack", self.git_app)
 
 class CustomApp:
     _instance = None
@@ -113,7 +105,7 @@ class CustomApp:
             if not self._initialized:
                 self._server_lock = RLock()
                 self._name = name
-                self._git_app = CustomHTTPGitApplication(backend=DictBackend(get_repos()))
+                self._git_app = HTTPGitApplication(backend=DictBackend(get_repos()))
                 self._cfg = c.Config(name)
                 self._cfg.set_config_path(config_path)
                 self._cfg.parse_configuration()
@@ -125,15 +117,16 @@ class CustomApp:
             error_handler = HCLIErrorHandler()
             server.add_error_handler(falcon.HTTPError, error_handler)
             server.add_error_handler(ProblemDetail, error_handler)
-            server.add_route('/repos/{repo}/info/refs', GitInfoRefsResource(self._git_app), methods=['GET'])
-            server.add_route('/repos/{repo}/git-upload-pack', GitUploadPackResource(self._git_app), methods=['POST'])
-            server.add_route('/repos/{repo}/git-receive-pack', GitReceivePackResource(self._git_app), methods=['POST'])
+            server.add_route('/{user}/{repo}/info/refs', GitInfoRefsResource(self._git_app), methods=['GET'])
+            server.add_route('/{user}/{repo}/git-upload-pack', GitUploadPackResource(self._git_app), methods=['POST'])
+            server.add_route('/{user}/{repo}/git-receive-pack', GitReceivePackResource(self._git_app), methods=['POST'])
             return server
 
 def connector(plugin_path=None, config_path=None):
     def port_router(environ, start_response):
         path = environ.get('PATH_INFO', '/')
-        if path.startswith('/repos'):
+        parts = path.split('/', 3)
+        if parts[3] in ('info/refs', 'git-upload-pack', 'git-receive-pack'):
             custom = CustomApp(name="hag", plugin_path=plugin_path, config_path=config_path)
             server = custom.server()
             return server(environ, start_response)

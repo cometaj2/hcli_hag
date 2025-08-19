@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.3.1]
 - Add single falcon CustomApp to avoid reloading repos on every call
+- Add support for user folder lookups in HTTPGitApplication
+- Updated the default HAG_HOME to be the ~/.hag
+- Removed /repos references
+- Remove extra code wrapping HTTPGitApplication
 - Fix manage.py tag and publish
 
 ## [0.3.0]

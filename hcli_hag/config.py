@@ -5,7 +5,7 @@ import inspect
 
 root = os.path.dirname(inspect.getfile(lambda: None))
 home = os.getenv('HAG_HOME') or os.path.expanduser("~")
-repos = os.path.abspath(os.path.join(home, 'repos'))
+repos = os.path.abspath(os.path.join(home, '.hag'))
 hcli_hag_manpage_path = root + "/data/hcli_hag.1"
 plugin_path = root + "/cli"
 cli = None
