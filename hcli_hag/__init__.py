@@ -13,7 +13,7 @@ import hcli_core
 from hcli_core import config as c
 from hcli_core.auth.cli import authenticator
 from hcli_core.handler import HCLIErrorHandler
-from hcli_problem_details import ProblemDetail
+from hcli_problem_details import *
 
 from dulwich.web import HTTPGitApplication
 from dulwich.server import DictBackend
@@ -87,6 +87,19 @@ class GitReceivePackResource:
         self.git_app = git_app
 
     def on_post(self, req, resp, user, repo):
+
+        # Check if authenticated user matches the user in the path
+        auth_user = c.ServerContext.get_current_user()
+        if not auth_user:
+            resp.append_header('WWW-Authenticate', 'Basic realm="default"')
+            raise AuthenticationError(detail='No authenticated user found', instance=req.path)
+        if auth_user != user:
+            resp.append_header('WWW-Authenticate', 'Basic realm="default"')
+            raise AuthenticationError(
+                detail=f"User '{auth_user}' does not match repository owner '{user}'",
+                instance=req.path
+            )
+
         handle_git_request(req, resp, f"{user}/{repo}/git-receive-pack", self.git_app)
 
 class CustomApp:
