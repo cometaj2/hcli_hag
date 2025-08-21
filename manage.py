@@ -1,7 +1,12 @@
 import os
 import sys
 import subprocess
-from hcli_hag import package
+import importlib.util
+
+# Dynamically import hcli_hag.package without triggering __init__.py
+spec = importlib.util.spec_from_file_location("hcli_hag.package", os.path.join("hcli_hag", "package.py"))
+package = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(package)
 
 version = package.__version__
 

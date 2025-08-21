@@ -70,7 +70,6 @@ def hcli_hag_help():
 
 # displays a man page (file) located on a given path
 def display_man_page(path):
-#     call(["man", path])
     with open(path, "r") as f:
         text = f.read()
         return troff_to_text(text).encode('utf-8')

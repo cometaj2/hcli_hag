@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add single falcon CustomApp to avoid reloading repos on every call
 - Add support for user folder lookups in HTTPGitApplication
 - Add support for segregated user folder ownership and authorization on repo write
+- Add gzip deflate support on http request prior to offloading to HTTPGitApplication
 - Updated the default HAG_HOME to be the ~/.hag
 - Removed /repos references
 - Remove extra code wrapping HTTPGitApplication
