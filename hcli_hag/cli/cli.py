@@ -2,8 +2,12 @@ import io
 import os
 import json
 from hcli_hag import config
+from hcli_hag import logger
 
 from typing import Optional, Dict, Callable, List
+
+log = logger.Logger("hcli_hag")
+
 
 class CLI:
 
@@ -23,15 +27,23 @@ class CLI:
     def _handle_ls(self) -> Optional[io.BytesIO]:
         def get_repos():
             try:
-                repos = []
-                for d in os.listdir(config.repos):
-                    if d.endswith('.git'):
-                        repos.append(f"{d}")
+                repos = {}
+                for user in os.listdir(config.repos):
+                    user_path = os.path.join(config.repos, user)
+                    if os.path.isdir(user_path):
+                        for repo in os.listdir(user_path):
+                            log.info(user_path)
+                            if repo.endswith('.git'):
+                                repo_path = os.path.join(user_path, repo)
+                                log.info(repo_path)
+                                try:
+                                    repos[f"/{user}/{repo}"] = 1
+                                except Exception as e:
+                                    log.error(f"Error loading repo {user}/{repo}: {e}")
                 return repos
             except Exception as e:
-                print(f"Error scanning repos: {e}")
-                return []
-
+                log.error(f"Error scanning repos: {e}")
+                return {}
 
         repos = get_repos()
         json_string = json.dumps(repos, indent=4)
