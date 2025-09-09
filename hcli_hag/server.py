@@ -5,7 +5,9 @@ import falcon
 import gzip
 
 from hcli_core import config as c
+from hcli_core.server import WSGIApp
 from hcli_core.auth.cli import authenticator
+from hcli_core.auth.cli.authenticator import requires_authentication, requires_authorization
 from hcli_core.handler import HCLIErrorHandler
 from hcli_problem_details import *
 
@@ -20,12 +22,6 @@ from . import logger
 
 log = logger.Logger("hcli_hag")
 
-
-# Class decorator to mark resources that need authentication or authorization.
-def requires_auth(cls):
-    cls.requires_authentication = True
-    cls.requires_authorization = True
-    return cls
 
 def get_repos():
     try:
@@ -77,7 +73,7 @@ class GitUploadPackResource:
     def on_post(self, req, resp, user, repo):
         handle_git_request(req, resp, f"{user}/{repo}/git-upload-pack", self.git_app)
 
-@requires_auth
+@requires_authentication
 class GitReceivePackResource:
 
     def __init__(self, git_app):
@@ -92,7 +88,7 @@ class GitReceivePackResource:
             raise AuthenticationError(detail='No authenticated user found', instance=req.path)
         if auth_user != user:
             resp.append_header('WWW-Authenticate', 'Basic realm="default"')
-            raise AuthenticationError( detail=f"User '{auth_user}' does not match repository owner '{user}'",
+            raise AuthorizationError( detail=f"User '{auth_user}' does not match repository owner '{user}'",
                 instance=req.path
             )
 
@@ -103,27 +99,28 @@ class GzipDecompressionMiddleware:
         # Check if the request has a Content-Encoding: gzip header
         if req.get_header('Content-Encoding') == 'gzip':
             try:
+
                 # Read and decompress the request body
                 compressed_data = req.bounded_stream.read()
                 decompressed_data = gzip.decompress(compressed_data)
+
                 # Update the WSGI environment with the decompressed data
                 req.env['wsgi.input'] = io.BytesIO(decompressed_data)
+
                 # Update Content-Length to reflect the decompressed data size
                 req.env['CONTENT_LENGTH'] = str(len(decompressed_data))
+
                 # Remove the Content-Encoding header to prevent downstream confusion
                 del req.headers['Content-Encoding'.upper()]
+
             except gzip.BadGzipFile as e:
                 raise BadRequestError( detail=f"The gzip-compressed request body could not be decompressed.")
 
-class GitApp:
+class GitApp(WSGIApp):
 
     def __init__(self, name, plugin_path=None, config_path=None):
-        self.server_lock = RLock()
-        self.name = name
+        super().__init__(name, plugin_path, config_path)
         self.git_app = HTTPGitApplication(backend=DictBackend(get_repos()))
-        self.cfg = c.Config(name)
-        self.cfg.set_config_path(config_path)
-        self.cfg.parse_configuration()
 
     def server(self):
         server = falcon.App(middleware=[GzipDecompressionMiddleware(),
