@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add gzip deflate support on http request prior to offloading to HTTPGitApplication
 - Refactor to move to a full 3rd party HCLI Core app rather than an hcli_core-like hybrid
 - Updated the default HAG_HOME to be the ~/.hag
+- Update to falcon 4.1.0 and hcli_core 4.0.0
 - Removed /repos references
 - Remove extra code wrapping HTTPGitApplication
 - Fix manage.py tag and publish
