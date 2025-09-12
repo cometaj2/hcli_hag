@@ -1,12 +1,14 @@
 import io
 import os
 import json
-from hcli_hag import config
-from hcli_hag import logger
+
+from hcli_hag.cli import config
+from hcli_hag.cli import logger
 
 from typing import Optional, Dict, Callable, List
 
 log = logger.Logger("hcli_hag")
+log.setLevel(logger.INFO)
 
 
 class CLI:

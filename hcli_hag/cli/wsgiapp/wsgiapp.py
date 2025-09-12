@@ -17,10 +17,11 @@ from dulwich.repo import Repo
 
 from threading import RLock
 
-from hcli_hag import config
-from hcli_hag import logger
+from hcli_hag.cli import config
+from hcli_hag.cli import logger
 
 log = logger.Logger("hcli_hag")
+log.setLevel(logger.INFO)
 
 
 def get_repos():

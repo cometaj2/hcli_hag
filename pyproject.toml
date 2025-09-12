@@ -34,6 +34,7 @@ dependencies = {file = "requirements.txt"}
 [tool.setuptools]
 packages = ["hcli_hag",
             "hcli_hag.cli",
+            "hcli_hag.cli.wsgiapp",
             "hcli_hag.data"]
 include-package-data = true
 
