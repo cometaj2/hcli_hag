@@ -5,6 +5,7 @@ import falcon
 import gzip
 
 from hcli_core import config as c
+from hcli_core import logger
 from hcli_core.server import HCLICoreWSGIApp
 from hcli_core.auth.cli import authenticator
 from hcli_core.auth.cli.authenticator import requires_authentication, requires_authorization
@@ -18,10 +19,8 @@ from dulwich.repo import Repo
 from threading import RLock
 
 from hcli_hag.cli import config
-from hcli_hag.cli import logger
 
-log = logger.Logger("hcli_hag")
-log.setLevel(logger.INFO)
+log = logger.Logger("hcli_core.hag")
 
 
 def get_repos():
@@ -33,6 +32,7 @@ def get_repos():
                 for repo in os.listdir(user_path):
                     if repo.endswith('.git'):
                         repo_path = os.path.join(user_path, repo)
+                        log.info("yehaw")
                         try:
                             repo_obj = Repo(repo_path)
                             repos[f"/{user}/{repo}"] = repo_obj
