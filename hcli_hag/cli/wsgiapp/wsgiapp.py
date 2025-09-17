@@ -20,7 +20,7 @@ from threading import RLock
 
 from hcli_hag.cli import config
 
-log = logger.Logger("hcli_core.hag")
+log = logger.Logger("hag")
 
 
 def get_repos():
@@ -32,7 +32,6 @@ def get_repos():
                 for repo in os.listdir(user_path):
                     if repo.endswith('.git'):
                         repo_path = os.path.join(user_path, repo)
-                        log.info("yehaw")
                         try:
                             repo_obj = Repo(repo_path)
                             repos[f"/{user}/{repo}"] = repo_obj

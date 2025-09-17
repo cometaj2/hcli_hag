@@ -8,7 +8,7 @@ from hcli_core import logger
 
 from typing import Optional, Dict, Callable, List
 
-log = logger.Logger(name="hcli_core.hag")
+log = logger.Logger(name="hag")
 
 
 class CLI:
