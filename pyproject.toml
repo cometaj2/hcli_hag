@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hcli_hag"
 dynamic = ["version", "dependencies"]
-description="HCLI hag is a python package wrapper that contains an HCLI sample application (hag); hag is git's companion; a WSGI hosted service and hcli to work with remote git repositories via HTTP."
+description="HCLI hag is a python package wrapper that contains an HCLI sample application (hag); hag is git's remote repo hosting companion; a WSGI hosted service and hcli to work with remote git repositories via HTTP."
 readme = "README.rst"
 authors = [{name = "Jeff Michaud", email = "cometaj2@proton.me"}]
 license = "MIT"
@@ -13,11 +13,11 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Software Development",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12"
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
 ]
 keywords = ["hag", "git", "code", "repo", "cli", "client", "server", "connector", "hypermedia", "rest", "generic", "development"]
 

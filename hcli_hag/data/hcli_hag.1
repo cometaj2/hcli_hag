@@ -1,6 +1,6 @@
 .TH HCLI_HAG 1 "MARCH 2025" Linux "User Manuals"
 .SH NAME
-hcli_hag \- A python package wrapper that contains an HCLI sample application (hag); hag is git's companion; a WSGI hosted service and hcli to work with remote git repositories via HTTP.
+hcli_hag \- A python package wrapper that contains an HCLI sample application (hag); hag is git's remote repo hosting companion; a WSGI hosted service and hcli to work with remote git repositories via HTTP.
 .SH SYNOPSIS
 .B hcli_hag
 [ option | <command> ]
@@ -18,8 +18,62 @@ This help file.
 version and the version of it's dependencies.
 .SH EXAMPLE
 .sp
+pip install hcli_hag
+.sp
 hcli_hag path
 .sp
 hcli_hag --version
 .sp
-gunicorn --workers=1 --threads=100 -b 0.0.0.0:8000 -b 0.0.0.0:9000 -b 0.0.0.0:10000 "hcli_core:connector(plugin_path=\\"`hcli_hag path`\\", config_path=\\"./credentials\\")"
+pip install hcli_core
+.sp
+pip install huckle
+.sp
+pip install gunicorn==25.0.1
+.sp
+hcli_core cli install `hcli_hag path`
+.sp
+hcli_core cli config hag
+.sp
+hcli_core cli config hag core.auth True
+.sp
+hcli_core cli config hag hco.port 9000
+.sp
+hcli_core cli config hag core.wsgiapp.port 10000
+.sp
+export HCLI_CORE_BOOTSTRAP_PASSWORD=admin
+.sp
+hcli_core cli run hag | bash
+.sp
+huckle cli install localhost:8000
+.sp
+huckle cli install localhost:9000
+.sp
+huckle cli config hco
+.sp
+huckle cli config hco auth.mode basic
+.sp
+huckle cli config hco credential.helper keyring
+.sp
+huckle cli credential hco admin <<< admin
+.sp
+hco help
+.sp
+hco ls
+.sp
+hco useradd test
+.sp
+hco passwd test <<< testing
+.sp
+hco ls
+.sp
+huckle cli config hag
+.sp
+huckle cli config hag auth.mode basic
+.sp
+huckle cli config hag credential.helper keyring
+.sp
+huckle cli credential hag test <<< testing
+.sp
+hag help
+.sp
+hag ls

@@ -3,7 +3,7 @@
 HCLI hag
 ========
 
-HCLI hag is a python package wrapper that contains an HCLI sample application (hag); hag is git's companion; a WSGI host service and hcli to work with remote git repositories.
+HCLI hag is a python package wrapper that contains an HCLI sample application (hag); hag is git's remote repo hosting companion; a WSGI host service and hcli to work with remote git repositories.
 
 ----
 
@@ -27,11 +27,16 @@ You'll need an HCLI Connector to run hag. For example, you can use HCLI Core (ht
 
 .. code-block:: console
 
-    pip install hcli-hag
-    pip install hcli-core
+    pip install hcli_hag
+    pip install hcli_core
     pip install huckle
     pip install gunicorn
-    gunicorn --workers=1 --threads=1 -b 127.0.0.1:8000 "hcli_core:connector(\"`hcli_hag path`\")"
+    hcli_core cli install `hcli_hag path`
+    hcli_core cli config hag
+    hcli_core cli config hag core.auth True
+    hcli_core cli config hag hco.port 9000
+    hcli_core cli config hag core.wsgiapp.port 10000
+    hcli_core cli run hag | bash
 
 Usage
 -----

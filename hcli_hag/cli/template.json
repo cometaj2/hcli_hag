@@ -13,7 +13,7 @@
             "section": [
                 {
                     "name": "name",
-                    "description": "hag - git's hosting companion."
+                    "description": "hag - git's remote repo hosting companion."
                 },
                 {
                     "name": "synopsis",
