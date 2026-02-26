@@ -36,7 +36,10 @@ You'll need an HCLI Connector to run hag. For example, you can use HCLI Core (ht
     hcli_core cli config hag core.auth True
     hcli_core cli config hag hco.port 9000
     hcli_core cli config hag core.wsgiapp.port 10000
+    hcli_core cli config hag core.wsgiapp.base.url http://localhost
+    export HCLI_CORE_BOOTSTRAP_PASSWORD=admin
     hcli_core cli run hag | bash
+
 
 Usage
 -----
@@ -47,12 +50,29 @@ Setup the huckle env eval in your .bash_profile (or other bash configuration) to
 
 Note that no CLI is actually installed by Huckle. Huckle reads the HCLI semantics exposed by the API via HCLI Connector and ends up behaving *like* the CLI it targets.
 
+You can set a new user and credentials with the hco admin, per HCLI_CORE_BOOTSTRAP_PASSWORD credentials and then use that user authentication with hag
 
 .. code-block:: console
 
-    huckle cli install http://127.0.0.1:8000
     eval $(huckle env)
+    huckle cli install localhost:8000
+    huckle cli install localhost:9000
+    huckle cli config hco
+    huckle cli config hco auth.mode basic
+    huckle cli config hco credential.helper keyring
+    huckle cli credential hco admin <<< admin
+    hco help
+    hco ls
+    hco useradd test
+    hco passwd test <<< testing
+    hco ls
+    huckle cli config hag
+    huckle cli config hag auth.mode basic
+    huckle cli config hag credential.helper keyring
+    huckle cli credential hag test <<< testing
     hag help
+    hag ls
+
 
 Versioning
 ----------
@@ -69,7 +89,7 @@ TBD
 To Do
 -----
 
-TBD
+- Add user identity length limit, reserved name (e.g. admin), and alpha-numeric constraints.
 
 Bugs
 ----

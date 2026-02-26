@@ -40,6 +40,8 @@ hcli_core cli config hag hco.port 9000
 .sp
 hcli_core cli config hag core.wsgiapp.port 10000
 .sp
+hcli_core cli config hag core.wsgiapp.base.url http://localhost
+.sp
 export HCLI_CORE_BOOTSTRAP_PASSWORD=admin
 .sp
 hcli_core cli run hag | bash

@@ -3,6 +3,7 @@ import os
 import json
 
 from hcli_hag.cli import config
+from hcli_hag.cli.utils import formatting
 
 from hcli_core import logger
 
@@ -29,7 +30,8 @@ class CLI:
     def _handle_ls(self) -> Optional[io.BytesIO]:
         def get_repos():
             try:
-                repos = {}
+                base_url = config.core_wsgiapp_base_url
+                repos = []
                 for user in os.listdir(config.repos):
                     user_path = os.path.join(config.repos, user)
                     if os.path.isdir(user_path):
@@ -39,7 +41,12 @@ class CLI:
                                 repo_path = os.path.join(user_path, repo)
                                 log.info(repo_path)
                                 try:
-                                    repos[f"/{user}/{repo}"] = 1
+                                    repos.append({
+                                            'user': user,
+                                            'repo': f"{base_url}/{user}/{repo}"
+                                    })
+
+                                    #repos[f"/{user}/{repo}"] = 1
                                 except Exception as e:
                                     log.error(f"Error loading repo {user}/{repo}: {e}")
                 return repos
@@ -50,4 +57,5 @@ class CLI:
         repos = get_repos()
         json_string = json.dumps(repos, indent=4)
 
-        return io.BytesIO(json_string.encode('utf-8'))
+        return io.BytesIO(formatting.format_rows(repos).encode('utf-8'))
+#         return io.BytesIO(json_string.encode('utf-8'))

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add support for user folder lookups in HTTPGitApplication
 - Add support for simple segregated user folder ownership and authentication/authorization on repo write
 - Add gzip deflate support on http request prior to offloading to HTTPGitApplication
+- Add git repository url output for hag ls
+- Add hag git base host repo configuration via hcli_core cli config hag core.wsgiapp.base.url https://example.com
 - Add python 3.13 and 3.14 support
 - Refactor to move to a full 3rd party HCLI Core app rather than an hcli_core-like hybrid
 - Updated the default HAG_HOME to be the ~/.hag
